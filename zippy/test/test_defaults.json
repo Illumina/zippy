@@ -1,0 +1,8 @@
+{
+	"stages": {
+		"markduplicates": {
+			"use_mate_cigar": false
+		}
+	},
+	"picard": "/path/to/picard"
+}

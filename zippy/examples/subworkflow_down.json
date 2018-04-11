@@ -1,0 +1,21 @@
+{
+    // Subworkflow that calls variants, and then annotates them.  Note that the subworkflow can only
+    // contain wildcards, stages and dockers.  Other top-level properties (e.g., pisces_path) must
+    // be defined in the top-level workflow.
+    "wildcards": {"path": "/path/to/output_root",
+                  "input_path":"/path/to/input_root"},
+     "stages": [
+        {
+            "identifier": "pisces", 
+            "output_dir": "{path}/pisces", //in subworkflows, output_dir will be appended with the _subworkflow_ identifier automatically
+            "previous_stage": "", // previous stage here does not need to be defined, as pisces will be fed-in at the top-level
+            "stage": "pisces",
+        },
+        {
+            "identifier": "nirvana",
+            "output_dir": "{path}/nirvana",
+            "previous_stage": "pisces",
+            "stage": "nirvana",
+        }
+    ]
+}

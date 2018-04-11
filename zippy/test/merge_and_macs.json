@@ -1,0 +1,26 @@
+{
+    "stages": [
+        {
+            "identifier": "data", 
+            "output_dir": "", 
+            "stage": "data"
+        }, 
+        {
+            "samples": "", 
+            "identifier": "mergebam", 
+            "output_dir": "", 
+            "previous_stage": "data", 
+            "stage": "mergebam"
+        }, 
+        {
+            "identifier": "macs", 
+            "output_dir": "", 
+            "previous_stage": "mergebam", 
+            "stage": "macs"
+        }
+    ], 
+    "sample_sheet": "", 
+    "samtools_path": "/path/to/samtools/latest/bin/samtools", 
+    "macs_path": "",
+    "scratch_path": ""
+}

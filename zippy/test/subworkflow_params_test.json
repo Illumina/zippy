@@ -1,0 +1,20 @@
+{
+    "stages": [
+        {
+            "identifier": "super_dummy", 
+            "output_dir": "", 
+            "previous_stage": "", 
+            "stage": "dummy",
+            "args": "test_args",
+            "overridden_arg": "internal"
+        },
+        {
+            "subworkflow": "zippy/test/dummy_params_test.json",
+            "previous_stage": {"dummy": "super_dummy"},
+            "identifier": ""
+        }
+    ], 
+    "dummy_path": "path/dummy2",
+    "overridden_arg": "external",
+    "missing_args": "nope!"
+}

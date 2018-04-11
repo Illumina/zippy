@@ -1,0 +1,53 @@
+{
+//simple example of subworkflows, which runs a simple DNA pipeline with/without downsampling
+    //all curly-bracket-enclosed wildcard strings will be replaced at json load-time
+    "wildcards": {"path": "/path/to/output_root",
+                  "input_path":"/path/to/input_root"},
+    "stages": [
+        {
+            "identifier": "fastq", 
+            "output_dir": "{path}/fastq", 
+            "stage": "bcl2fastq",
+            "args": "--ignore-missing-bcls" //most stages for which command like arguments make sense support the 'args' tag
+        }, 
+        {
+            "identifier": "alignment", 
+            "output_dir": "{path}/align", 
+            "previous_stage": "fastq", 
+            "stage": "bwa"
+        }, 
+        {
+            "identifier": "subsample", 
+            "output_dir": "{path}/subsample", 
+            "previous_stage": "alignment", 
+            "stage": "bloomsubsamplebam",
+            "reads": 50000000,
+            "skip": false //all stages can be set to skip: true if you do not want that stage to be executed (for debugging or other purposes)
+        }, 
+        {//downstream processing direct from alignment
+            "subworkflow": "subworkflow_downstream.json",
+            "identifier": "",
+            "previous_stage": {"pisces": "alignment"} //for subworkflows, previous stage is a dictionary mapping
+            // subworkflow stages to the top-level stage they inherit from.  So here pisces is called directly on the output from the alignment stage
+        },
+        {//downstream processing afer subsampling to 50M reads
+            "subworkflow": "subworkflow_downstream.json",
+            "identifier": "_down", //We want to run the same subworkflow, so we give it an identifier _suffix_ that disambiguates it from the other instance of the subworkflow.
+            "previous_stage": {"pisces": "subsample"}
+        }
+    ],
+    "sample_sheet": "{input_path}/SampleSheet.csv", 
+    "bcl2fastq_path": "", 
+    "sample_path": "{input_path}", 
+    "bwa_path": "", 
+    "samtools_path": "", 
+    "genome": "",
+    "dotnet": "",
+    "pisces_path": "",
+    "python": "",
+    "scratch_path": "/path/to/scratch",
+    "nirvana_path": "",
+    "nirvana_cache": "", 
+    "nirvana_supplement": "", 
+    "nirvana_ref": "",
+}

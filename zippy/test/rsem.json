@@ -1,0 +1,23 @@
+{
+    "stages": [
+        {
+            "identifier": "bcl2fastq", 
+            "output_dir": "", 
+            "stage": "bcl2fastq"
+        }, 
+        {
+            "identifier": "rsem", 
+            "output_dir": "", 
+            "previous_stage": "bcl2fastq", 
+            "stage": "rsem"
+        }
+    ], 
+    "sample_sheet": "", 
+    "bcl2fastq_path": "/path/to/bin/bcl2fastq2-v2.18.0.6/bin/bcl2fastq", 
+    "sample_path": "", 
+    "rsem_path": "/path/to/bin/rsem-1.2.31/bin/rsem-calculate-expression", 
+    "rsem_annotation": "/path/to/static_files/rsem/GRCh38", 
+    "star_path": "/path/to/bin/STAR_2.5.1b/STAR", 
+    "genome": "path/to/WholeGenomeFasta", 
+    "scratch_path": ""
+}

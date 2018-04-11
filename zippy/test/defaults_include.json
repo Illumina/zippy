@@ -1,0 +1,20 @@
+{
+    "stages": [
+        {
+            "skip": "", 
+            "use_mate_cigar": false, 
+            "output_dir": "", 
+            "memory": "", 
+            "cores": "", 
+            "identifier": "markduplicates", 
+            "stage": "markduplicates"
+        }
+    ], 
+    "sample_sheet": "", 
+    "scratch_path": "", 
+    "picard": "/path/to/picard", 
+    "samtools_path": "", 
+    "zippy_fix_duplicate_sample_names": "",
+    "max_cores": "", 
+    "max_memory": ""
+}

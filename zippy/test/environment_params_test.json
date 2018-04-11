@@ -1,0 +1,12 @@
+{
+    "stages": [
+        {
+            "identifier": "super_dummy", 
+            "output_dir": "", 
+            "previous_stage": "", 
+            "stage": "dummy",
+            "environment": "zippy/test/subworkflow_params_test.json"
+        }
+    ], 
+    "environment": "zippy/test/subworkflow_params_test.json"
+}

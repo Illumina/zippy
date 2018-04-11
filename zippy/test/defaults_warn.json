@@ -1,0 +1,13 @@
+{
+    "stages": [
+        {
+            "identifier": "markduplicates", 
+            "output_dir": "", 
+            "stage": "markduplicates"
+        }
+    ], 
+    "sample_sheet": "", 
+    "scratch_path": "", 
+    "picard": "/path/to/picard",
+    "samtools_path": ""
+}

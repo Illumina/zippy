@@ -1,0 +1,40 @@
+{
+    // This simple workflow could be used to analyze Chip-seq data: it aligns the reads to the genome,
+    // and then finds peaks with a large number of reads (corresponding to binding sites).
+    "wildcards" : {
+        "path": "/path/to/run/folder"
+    },
+    "stages": [
+        {
+            "identifier": "bcl2fastq", 
+            "output_dir": "{path}/fastq", 
+            "stage": "bcl2fastq"
+        }, 
+        {
+            "identifier": "bwa", 
+            "output_dir": "{path}/align", 
+            "previous_stage": "bcl2fastq", 
+            "stage": "bwa"
+        }, 
+        {
+            "identifier": "bwaalignstats", 
+            "output_dir": "{path}/stats", 
+            "previous_stage": "bwa", 
+            "stage": "picardalignstats"
+        }, 
+        {
+            "identifier": "macs", 
+            "output_dir": "{path}/peak",
+            "previous_stage": "bwa",
+            "stage": "macs"
+        }
+    ], 
+    "sample_sheet": "{path}/SampleSheet.csv", 
+    "sample_path": "{path}", 
+    "bwa_path": "", 
+    "samtools_path": "",
+    "macs_path": "",
+    "picard": "",
+    "genome": "",
+    "scratch_path": "/path/to/scratch"
+}

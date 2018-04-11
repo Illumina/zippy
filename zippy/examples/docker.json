@@ -1,0 +1,34 @@
+{ //Here's a simple docker example that uses a dockerized copy of bwa
+    "wildcards": {"path": "/home/path/to/output",
+                  "sample_path": "/home/path/to/data",
+                  "scratch": "/scratch"},
+    "docker": { //The docker section of the config contains a map from identifiers to docker configurations.
+        "docker_bwa": {
+            "image": "some/dockerhub/path/example_bwa_image",
+            "mount_points": ["/home:/home"], //Mount points contains a list of docker-style mounts, in the format mount_from:mount_to
+        }
+    },
+    "stages": [
+        {
+            "identifier": "bcl2fastq", 
+            "output_dir": "{path}/fastq", 
+            "stage": "bcl2fastq",
+            "skip": false
+        }, 
+        {
+            "identifier": "bwa1", 
+            "output_dir": "{path}/bwa1_docker", 
+            "previous_stage": "bcl2fastq", 
+            "stage": "bwa",
+            "skip": false,
+            "use_docker": "docker_bwa" //to run a stage with docker, simply specify the name of the docker image to use in the stage dictionary.
+        }
+    ],
+    "sample_sheet": "{sample_path}/SampleSheet.csv", 
+    "bcl2fastq_path": "/home/path/to/bcl2fastq", 
+    "sample_path": "{sample_path}", //root of your sample folder for bcl2fastq
+    "bwa_path": "bwa", 
+    "samtools_path": "samtools", 
+    "genome": "/home/path/to/genome", 
+    "scratch_path": "{scratch}"
+}

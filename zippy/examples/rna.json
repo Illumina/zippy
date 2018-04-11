@@ -1,0 +1,28 @@
+{
+    // A very simple workflow that goes from a run folder (with bcl files) to quantified results using RSEM
+    "wildcards": {
+        "path": "/path/to/run/folder"
+    },
+    "stages": [
+        {
+            "identifier": "bcl2fastq",
+            "output_dir": "{path}/fastq", 
+            "stage": "bcl2fastq",
+            "skip": false
+        },
+        {
+            "stage": "rsem",
+            "identifier": "rsem", 
+            "output_dir": "{path}/quant",
+            "previous_stage": "bcl2fastq",
+            "skip": false
+        }
+    ], 
+    "sample_sheet": "{path}/SampleSheet.csv",
+    "bcl2fastq_path": "", 
+    "sample_path" : "{path}",
+    "rsem_path": "", 
+    "rsem_annotation": "", 
+    "genome": "", 
+    "scratch_path": "/path/to/scratch",
+}

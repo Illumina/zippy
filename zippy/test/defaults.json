@@ -1,0 +1,23 @@
+{
+    "stages": {
+        "markduplicates": 
+        {
+            "use_mate_cigar": true,
+            "test": true
+        }
+    },
+    "python": "/python/bin/python",
+    "max_job_cores": 16,
+    "genome":  "/path/to/WholeGenomeFasta",
+    "samtools_path": "/path/to/samtools/latest/bin/samtools",
+    "bedtools_path": "/path/to/bedtools/latest/bin/bedtools",
+    "bcl2fastq_path" : "/path/to/bin/bcl2fastq2-v2.18.0.6/bin/bcl2fastq",
+    "star_path" : "/path/to/bin/STAR_2.5.1b/STAR",
+    "bwa_path" : "/path/to/bwa/bwa-0.7.12/bwa",
+    "indelRealign": "/path/to/bin/RealignIndels_5.1.2.80/RealignIndels.exe",
+    "picard": "/path/to/bin/picard-tools-2.9.0/picard.jar",
+    "pisces": "/path/to/bin/pisces/5.1.3.48/Release/Pisces.exe",
+    "rsem_path": "/path/to/bin/rsem-1.2.31/bin/rsem-calculate-expression",
+    "rsem_annotation": "/path/to/static_files/rsem/GRCh38",
+    "samtools_path": "/path/to/samtools/latest/bin/samtools"
+    }
