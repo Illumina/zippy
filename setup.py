@@ -20,9 +20,10 @@ except IOError as err:
     version_str = '2.0.0'
 
 setup(
-    name='zippy',
+    name='zippy-pipeline',
     long_description=long_desc,
-    url='https://github.com/Illumina/zippy/wiki',
+    url='https://github.com/Illumina/zippy',
+    download_url='https://github.com/Illumina/zippy/archive/2.1.0.tar.gz',
     author='Aaron Wise',
     author_email='quejebo@gmail.com',
     license='Apache 2.0',
@@ -30,8 +31,10 @@ setup(
         'distribute',
         'commentjson',
         'ast',
-        'pybloomfiltermmap'
+        'pybloomfiltermmap',
+        'pyflow'
         ],
+    dependency_links=['https://github.com/Illumina/pyflow/releases/download/v1.1.17/pyflow-1.1.17.tar.gz'],
     version=version_str,
     description='NGS Pipeline Prototyping Tool for Python',
     include_package_data=True,

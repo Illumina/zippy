@@ -33,7 +33,7 @@ If you would like to run ZIPPY from source, there are a couple of things to note
 - Run the tests file make_params_test.py and see if it's OK!
 
 # Using ZIPPY:
-0. Install ZIPPY by using 'pip install zippy'
+0. Install ZIPPY by using 'pip install zippy-pipeline'
 
 1. Make a proto-workflow file.
 
