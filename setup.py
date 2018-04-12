@@ -32,7 +32,7 @@ setup(
         'commentjson',
         'ast',
         'pybloomfiltermmap',
-        'pyflow'
+        'pyflow>=1.1.0'
         ],
     dependency_links=['https://github.com/Illumina/pyflow/releases/download/v1.1.17/pyflow-1.1.17.tar.gz'],
     version=version_str,
