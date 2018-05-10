@@ -303,7 +303,6 @@ class RSEMRunner(ModularRunner):
             fastq_files = self.collect_input(sample, 'fastq', as_list=True)
             fastq_files = organize_fastqs(fastq_files, self.sample_sheet.is_paired_end())
             if self.sample_sheet.is_paired_end():
-                workflowRunner.flowLog(fastq_files)
                 rsem_command = "{rsem_path} --paired-end {r1} {r2} {reference} {sample_name} --star -p {cores} --star-path {star_path} --star-gzipped-read-file --temporary-folder {temp_folder}".format( #I have no idea why we need to specify a directory below reference.  So weird.
                     rsem_path=self.params.rsem_path,
                     r1=",".join(fastq_files[0]),
