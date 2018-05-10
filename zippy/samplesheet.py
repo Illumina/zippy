@@ -114,7 +114,7 @@ class SampleSheet(object):
                     continue
 
                 if not section_name:
-                    raise Exception('could not parse section name in sample sheet %s' % self.sample_sheet)
+                    raise Exception('could not parse section name in string %s in sample sheet %s' % (line[0], self.sample_sheet))
                 
                 if section_name not in self._ss:
                     if section_name in ["Data", "Reads"]:

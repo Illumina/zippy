@@ -175,7 +175,16 @@ class ModularMain(WorkflowRunner):
     def run_zippy(self, mode='sge', mail_to=None):
         """Runs the workflow. Returns 0 upon successful completion, 1 otherwise"""
         # pyflow.WorkflowRunner's run function by default already returns 0/1 for success/fail
-        return self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to)
+        if mode == 'local':
+            if not hasattr(self.params, 'max_cores') or not hasattr(self.params, 'max_memory'):
+                raise IOError('In local mode, must specify max_cores and max_memory for the entire system.')
+            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=input_params.email, nCores=wflow.params.max_cores, memMb=wflow.params.max_memory)
+        else:
+            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=input_params.email)
+        return retval
+
+
+
 
 def build_zippy(params_dictionary):
     """
@@ -219,5 +228,5 @@ if __name__ == '__main__':
             mode = 'local'
         else:
             mode = 'sge'
-        retval = wflow.run(mode=mode, dataDirRoot=wflow.params.scratch_path, retryMax=0, mailTo=input_params.email)
+        retval = wflow.run_zippy(mode=mode, mail_to=input_params.email)
         sys.exit(retval)
