@@ -147,7 +147,8 @@ class ModularRunner():
         '''
         samples = set()
         for previous_stage in self.previous_stages:
-            samples |= set(previous_stage.get_samples())
+            if previous_stage is not None:
+                samples |= set(previous_stage.get_samples())
         return samples
 
     def setup_workflow(self, workflowRunner):
@@ -199,6 +200,8 @@ class ModularRunner():
     def collect_dependencies(self, sample):
         dependencies = []
         for previous_stage in self.previous_stages:
+            if previous_stage is None:
+                continue
             new_dependencies = previous_stage.get_dependencies(sample)
             if isinstance(new_dependencies, list):
                 dependencies.extend(new_dependencies)
@@ -266,6 +269,9 @@ class Bcl2FastQRunner(ModularRunner):
         return self.bcl2fastq_task
 
     def workflow(self, workflowRunner):
+        dependencies = []
+        for sample in self.collect_samples():
+            dependencies.extend(self.collect_dependencies(sample))
         if hasattr(self.params.self, 'args'):
             args = " " + self.params.self.optional.args
             if "no-lane-splitting" not in args:
@@ -273,7 +279,7 @@ class Bcl2FastQRunner(ModularRunner):
         else:
             args = '--no-lane-splitting'
         bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, self.params.self.output_dir, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
-        self.bcl2fastq_task = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf)
+        self.bcl2fastq_task = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
 
 class RSEMRunner(ModularRunner):
     """
@@ -795,12 +801,13 @@ class RNAQCRunner(ModularRunner):
             if not os.path.exists(sample_scratch):
                 os.makedirs(sample_scratch)
             starlog_path = self.collect_input(sample, 'starlog')
+            script_path = os.path.join(zippy_dir, 'rna_stats.py')            
             if starlog_path is None: #we did not use star, so we can't get the star stats
-                command = "{python} rna_stats.py {bam_path} {stat_path}/{sample_name}.summary.txt --ribosome_bed {ribosome_bed} --intron_bed {intron_bed} --temp_path {temp} ".format(
-                python=self.params.python, bam_path=bam_path, stat_path=self.params.self.output_dir, sample_name=sample.name, ribosome_bed=self.params.ribosome_bed, intron_bed=self.params.intron_bed, temp=sample_scratch+'a.out')
+                command = "{python} {script} {bam_path} {stat_path}/{sample_name}.summary.txt --ribosome_bed {ribosome_bed} --intron_bed {intron_bed} --temp_path {temp} ".format(
+                python=self.params.python, script=script_path, bam_path=bam_path, stat_path=self.params.self.output_dir, sample_name=sample.name, ribosome_bed=self.params.ribosome_bed, intron_bed=self.params.intron_bed, temp=sample_scratch+'a.out')
             else:
-                command = "{python} rna_stats.py {bam_path} {stat_path}/{sample_name}.summary.txt --ribosome_bed {ribosome_bed} --intron_bed {intron_bed} --starlog_path {starlog_path} --temp_path {temp}".format(
-                python=self.params.python, bam_path=bam_path, stat_path=self.params.self.output_dir, sample_name=sample.name, ribosome_bed=self.params.ribosome_bed, intron_bed=self.params.intron_bed, starlog_path=starlog_path, temp=sample_scratch+'a.out')
+                command = "{python} {script} {bam_path} {stat_path}/{sample_name}.summary.txt --ribosome_bed {ribosome_bed} --intron_bed {intron_bed} --starlog_path {starlog_path} --temp_path {temp}".format(
+                python=self.params.python, script=script_path, bam_path=bam_path, stat_path=self.params.self.output_dir, sample_name=sample.name, ribosome_bed=self.params.ribosome_bed, intron_bed=self.params.intron_bed, starlog_path=starlog_path, temp=sample_scratch+'a.out')
             if hasattr(self.params, 'manifest_bed'):
                 command += " --manifest_bed {}".format(self.params.optional.manifest_bed)
             if hasattr(self.params.self, 'dup_stats') and self.params.self.optional.dup_stats:
