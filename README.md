@@ -59,6 +59,8 @@ Yeah, that's really it.
 
 
 **More information is on the git wiki.**
+v2.1.1 (6/14/2018)
+- Improvements to execution in local mode and other minor fixes
 
 v2.1.0 (4/11/2018)
 - First public release
