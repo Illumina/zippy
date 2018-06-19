@@ -178,7 +178,7 @@ class ModularMain(WorkflowRunner):
         if mode == 'local':
             if not hasattr(self.params, 'max_cores') or not hasattr(self.params, 'max_memory'):
                 raise IOError('In local mode, must specify max_cores and max_memory for the entire system.')
-            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, nCores=wflow.params.max_cores, memMb=wflow.params.max_memory)
+            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, nCores=self.params.max_cores, memMb=self.params.max_memory)
         else:
             retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to)
         return retval
