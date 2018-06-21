@@ -28,9 +28,7 @@ setup(
     author_email='quejebo@gmail.com',
     license='Apache 2.0',
     install_requires=[
-        'distribute',
         'commentjson',
-        'ast',
         'pybloomfiltermmap',
         'pyflow>=1.1.0'
         ],
