@@ -33,11 +33,16 @@ class BWAWorkflow(WorkflowRunner):
             self.args=" "+self.args
         else:
             self.args = " -M -R \'@RG\\tID:1\\tLB:{0}\\tPL:ILLUMINA\\tSM:{0}\'".format(self.sample)
+        # Figure out the number of cores we can use for alignment and for bam compression
+        total_threads = self.cores * 2  # At least 2
+        addtl_compression_threads = max(int(0.1 * total_threads), 1) # At a minimum, allocate one extra thread for bam compression
+        bwa_threads = total_threads - addtl_compression_threads  # Because we have at least 2 threads, this is at least 1
+        assert bwa_threads >= 1
         cmd = "%s mem" % self.bwa_exec \
-              + " -t %i" % (self.cores*2) \
+              + " -t %i" % (bwa_threads) \
               + self.args \
               + " %s %s" % (self.genome_fa, fastq) \
-              + " | %s view -b -o %s -" % (self.samtools_exec, out_bam)
+              + " | %s view -@ %i -1 -o %s -" % (self.samtools_exec, addtl_compression_threads, out_bam)
         self.flowLog(cmd)
         self.addTask(label="bwamem", command=cmd, nCores=self.cores,
                      memMb=self.mem, dependencies="make_out_dir")
