@@ -365,12 +365,12 @@ class BWARunner(ModularRunner):
                     #put R1, then R2 in a list
                     fastq_files = [x for x in itertools.chain(*fastq_files)]
                     bwa_wf = BWAWorkflow(os.path.join(self.params.self.output_dir, sample_name),
-                    self.params.bwa_path, self.params.samtools_path, self.params.genome+"/genome.fa", cores, mem, fastq_files, sample=sample.id, args=args)
+                    self.params.bwa_path, self.params.samtools_path, os.path.join(self.params.genome, self.params.genome_filename), cores, mem, fastq_files, sample=sample.id, args=args)
                 else:
                     if len(fastq_files) != 1:
                         raise NotImplementedError("bwa only supports one fastq per sample: {}".format(fastq_files))
                     bwa_wf = BWAWorkflow(os.path.join(self.params.self.output_dir, sample_name),
-                    self.params.bwa_path, self.params.samtools_path, self.params.genome+"/genome.fa", cores, mem, fastq_files, sample=sample.id, args=args)
+                    self.params.bwa_path, self.params.samtools_path, os.path.join(self.params.genome, self.params.genome_filename), cores, mem, fastq_files, sample=sample.id, args=args)
                 bwa_task = workflowRunner.addWorkflowTask('bwa_{}_{}'.format(self.identifier, sample.id), bwa_wf, dependencies=dependencies)
                 mv_task = workflowRunner.addTask('mv_{}_{}'.format(self.identifier, sample.id), "mv {} {}".format(os.path.join(self.params.self.output_dir, sample_name, "out.sorted.bam"), os.path.join(self.params.self.output_dir, sample_name, sample_name+".raw.bam")), dependencies=bwa_task, isForceLocal=True)
                 self.task[sample].append(workflowRunner.addTask('index_{}_{}'.format(self.identifier, sample.id), "{} index {}".format(self.params.samtools_path, os.path.join(self.params.self.output_dir,sample_name, sample_name+".raw.bam")), dependencies=mv_task))
