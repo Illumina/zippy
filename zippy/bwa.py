@@ -37,7 +37,7 @@ class BWAWorkflow(WorkflowRunner):
         # Figure out the number of cores we can use for alignment and for bam compression
         total_threads = self.cores * 2  # At least 2
         addtl_compression_threads = max(int(0.1 * total_threads), 1) # At a minimum, allocate one extra thread for bam compression
-        bwa_threads = total_threads - addtl_compression_threads  # Because we have at least 2 threads, this is at least 1
+        bwa_threads = total_threads  # Because we have at least 2 threads, this is at least 1
         assert bwa_threads >= 1
         cmd = "%s mem" % self.bwa_exec \
               + " -t %i" % (bwa_threads) \
