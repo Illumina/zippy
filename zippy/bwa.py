@@ -1,4 +1,5 @@
 import os.path
+import math
 from pyflow import WorkflowRunner
 
 class BWAWorkflow(WorkflowRunner):
@@ -51,13 +52,17 @@ class BWAWorkflow(WorkflowRunner):
         # Sort BAM
         out_sorted_bam = os.path.join(self.output_dir, "out.sorted.bam")
         out_temp = os.path.join(self.output_dir, "tmp")
+        # Calculate resources for sort
+        sort_threads = self.cores * 2
+        mem_per_thread = int(math.floor(float(self.mem) / sort_threads * 0.9))  # Per thread, underallocate to allow some overhead
         cmd = self.samtools_exec \
               + " sort %s" % out_bam \
               + " -O bam" \
               + " -o " + out_sorted_bam \
               + " -T " + out_temp \
-              + " -@ %i" % self.cores
-        self.addTask(label="sort_bam", command=cmd, nCores=self.cores, memMb=min(1024 * 32, self.mem), dependencies="bwamem")
+              + " -@ %i" % sort_threads \
+              + " -m {thread_mem_mb}M".format(thread_mem_mb=mem_per_thread)  # Specify in megabytes
+        self.addTask(label="sort_bam", command=cmd, nCores=self.cores, memMb=self.mem, dependencies="bwamem")
 
         # Clean up the unsorted BAM
         cmd = "rm {}".format(out_bam)
