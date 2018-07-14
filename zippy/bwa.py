@@ -54,7 +54,7 @@ class BWAWorkflow(WorkflowRunner):
         out_temp = os.path.join(self.output_dir, "tmp")
         # Calculate resources for sort
         sort_threads = self.cores * 2
-        mem_per_thread = int(math.floor(float(self.mem) / sort_threads * 0.9))  # Per thread, underallocate to allow some overhead
+        mem_per_thread = int(math.floor(float(self.mem) / sort_threads * 0.75))  # Per thread, underallocate to allow some overhead
         cmd = self.samtools_exec \
               + " sort %s" % out_bam \
               + " -O bam" \
