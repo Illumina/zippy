@@ -60,8 +60,7 @@ class BWAWorkflow(WorkflowRunner):
               + " -O bam" \
               + " -o " + out_sorted_bam \
               + " -T " + out_temp \
-              + " -@ %i" % sort_threads \
-              + " -m {thread_mem_mb}M".format(thread_mem_mb=mem_per_thread)  # Specify in megabytes
+              + " -@ %i" % sort_threads
         self.addTask(label="sort_bam", command=cmd, nCores=self.cores, memMb=self.mem, dependencies="bwamem")
 
         # Clean up the unsorted BAM
