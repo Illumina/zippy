@@ -1,4 +1,5 @@
 import os.path
+import math
 from pyflow import WorkflowRunner
 
 class BWAWorkflow(WorkflowRunner):
@@ -33,11 +34,16 @@ class BWAWorkflow(WorkflowRunner):
             self.args=" "+self.args
         else:
             self.args = " -M -R \'@RG\\tID:1\\tLB:{0}\\tPL:ILLUMINA\\tSM:{0}\'".format(self.sample)
+        # Figure out the number of cores we can use for alignment and for bam compression
+        total_threads = self.cores * 2  # At least 2
+        addtl_compression_threads = max(int(0.1 * total_threads), 1) # At a minimum, allocate one extra thread for bam compression
+        bwa_threads = total_threads  # Since BWA's output is thread-dependent, we don't decrement here in order to avoid surprises
+        assert bwa_threads >= 1
         cmd = "%s mem" % self.bwa_exec \
-              + " -t %i" % (self.cores*2) \
+              + " -t %i" % (bwa_threads) \
               + self.args \
               + " %s %s" % (self.genome_fa, fastq) \
-              + " | %s view -b -o %s -" % (self.samtools_exec, out_bam)
+              + " | %s view -@ %i -1 -o %s -" % (self.samtools_exec, addtl_compression_threads, out_bam)
         self.flowLog(cmd)
         self.addTask(label="bwamem", command=cmd, nCores=self.cores,
                      memMb=self.mem, dependencies="make_out_dir")
@@ -46,13 +52,16 @@ class BWAWorkflow(WorkflowRunner):
         # Sort BAM
         out_sorted_bam = os.path.join(self.output_dir, "out.sorted.bam")
         out_temp = os.path.join(self.output_dir, "tmp")
+        # Calculate resources for sort
+        sort_threads = self.cores * 2
+        mem_per_thread = int(math.floor(float(self.mem) / sort_threads * 0.75))  # Per thread, underallocate to allow some overhead
         cmd = self.samtools_exec \
               + " sort %s" % out_bam \
               + " -O bam" \
               + " -o " + out_sorted_bam \
               + " -T " + out_temp \
-              + " -@ %i" % self.cores
-        self.addTask(label="sort_bam", command=cmd, nCores=self.cores, memMb=min(1024 * 32, self.mem), dependencies="bwamem")
+              + " -@ %i" % sort_threads
+        self.addTask(label="sort_bam", command=cmd, nCores=self.cores, memMb=self.mem, dependencies="bwamem")
 
         # Clean up the unsorted BAM
         cmd = "rm {}".format(out_bam)
