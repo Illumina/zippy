@@ -172,7 +172,7 @@ class ModularMain(WorkflowRunner):
             else:
                 previous_stage = self.run_stage(stage, [previous_stage])
 
-    def run_zippy(self, mode='sge', mail_to=None):
+    def run_zippy(self, mode='sge', mail_to=None, sge_arg_list=None):
         """Runs the workflow. Returns 0 upon successful completion, 1 otherwise"""
         # pyflow.WorkflowRunner's run function by default already returns 0/1 for success/fail
         if mode == 'local':
@@ -180,7 +180,10 @@ class ModularMain(WorkflowRunner):
                 raise IOError('In local mode, must specify max_cores and max_memory for the entire system.')
             retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, nCores=self.params.max_cores, memMb=self.params.max_memory)
         else:
-            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to)
+            if sge_arg_list:
+                retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, schedulerArgList=sge_arg_list)
+            else:
+                retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to)
         return retval
 
 
