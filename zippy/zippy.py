@@ -180,10 +180,7 @@ class ModularMain(WorkflowRunner):
                 raise IOError('In local mode, must specify max_cores and max_memory for the entire system.')
             retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, nCores=self.params.max_cores, memMb=self.params.max_memory)
         else:
-            if sge_arg_list:
-                retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, schedulerArgList=sge_arg_list)
-            else:
-                retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to)
+            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, schedulerArgList=sge_arg_list)
         return retval
 
 
