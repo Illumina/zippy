@@ -292,6 +292,9 @@ class Bcl2FastQRunner(ModularRunner):
             args = '--no-lane-splitting'
         self.tasks = []
 
+        if not os.path.exists(self.params.self.output_dir): 
+            os.makedirs(self.params.self.output_dir)
+
         if self.params.self.optional.use_scratch: 
             temp_folder =os.path.join(self.params.scratch_path, self.identifier + '_' + str(uuid.uuid4()))
             os.makedirs(temp_folder)
