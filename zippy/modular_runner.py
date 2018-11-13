@@ -1158,3 +1158,30 @@ class PrimerDimerMinerRunner(ModularRunner):
                     pdm_command+=' --input_file{} {}'.format(i+1, x)
             self.task[sample].append(workflowRunner.addTask('{}_{}'.format(self.identifier, sample.id),
              pdm_command, dependencies=dependencies))
+
+class CopyFolderRunner(ModularRunner):
+    '''
+    Copies a folder
+    args:
+        input_dir: the input folder path
+        output_dir: the output folder path
+    '''
+    def get_output(self, sample):
+        return {'folder': os.path.join(self.params.self.output_dir)}
+
+    def get_samples(self):
+        samples_in = self.collect_samples()
+        return samples_in if len(samples_in) > 0 else [SampleTuple('1', self.identifier)]
+
+    def get_dependencies(self, sample):
+        return self.task
+
+    def workflow(self, workflowRunner):
+        self.task = defaultdict(list)
+        dependencies = []
+        for sample in self.collect_samples():
+            dependencies.append(self.collect_dependencies(sample))
+        command = 'cp -rT {in_path} {out_path}'.format(
+        in_path=self.params.self.input_dir, out_path=self.params.self.output_dir)
+        self.task = workflowRunner.addTask('{}'.format(self.identifier),
+            command, dependencies=dependencies)

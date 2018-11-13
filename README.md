@@ -59,6 +59,11 @@ Yeah, that's really it.
 
 
 **More information is on the git wiki.**
+
+v2.1.2 (11/13/2018)
+- Improvements to the bwa module (kwu)
+- Added stage for copying a folder
+
 v2.1.1 (6/14/2018)
 - Improvements to execution in local mode and other minor fixes
 
