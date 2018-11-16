@@ -17,7 +17,6 @@ from star import SingleStarFlow
 from bwa import BWAWorkflow
 from samplesheet import SampleSheet, check_valid_samplename
 from bcl2fastq import Bcl2Fastq
-import uuid
 
 SampleTuple = namedtuple('SampleTuple', ['id', 'name'])
 zippy_dir = os.path.dirname(__file__)
