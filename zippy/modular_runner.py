@@ -269,7 +269,7 @@ class Bcl2FastQRunner(ModularRunner):
         return {'fastq': samples_to_return}
 
     def get_dependencies(self, sample):
-        return self.tasks
+        return self.bcl2fastq_task
 
     def _remove_undefined(self, workflowRunner, dependencies, input_dir): 
         if not self.params.self.optional.keep_undetermined: 
@@ -294,11 +294,11 @@ class Bcl2FastQRunner(ModularRunner):
         if not os.path.exists(self.params.self.output_dir): 
             os.makedirs(self.params.self.output_dir)
             
-            bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, self.params.self.output_dir, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
-            bcl_label = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
+        bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, self.params.self.output_dir, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
+        bcl_label = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
 
-            remove_label = self._remove_undefined(workflowRunner, bcl_label, self.params.self.output_dir)
-            self.tasks.append(remove_label)
+        self.bcl2fastq_task = self._remove_undefined(workflowRunner, bcl_label, self.params.self.output_dir)
+        
             
         
 class RSEMRunner(ModularRunner):
