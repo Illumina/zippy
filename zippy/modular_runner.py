@@ -289,7 +289,6 @@ class Bcl2FastQRunner(ModularRunner):
                 args+=" --no-lane-splitting"
         else:
             args = '--no-lane-splitting'
-        self.tasks = []
 
         if not os.path.exists(self.params.self.output_dir): 
             os.makedirs(self.params.self.output_dir)
