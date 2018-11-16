@@ -17,6 +17,7 @@ from star import SingleStarFlow
 from bwa import BWAWorkflow
 from samplesheet import SampleSheet, check_valid_samplename
 from bcl2fastq import Bcl2Fastq
+import uuid
 
 SampleTuple = namedtuple('SampleTuple', ['id', 'name'])
 zippy_dir = os.path.dirname(__file__)
@@ -222,7 +223,7 @@ class Bcl2FastQRunner(ModularRunner):
     Output: fastq
     """
     def define_optionals(self):
-        return {'keep_undetermined': True}
+        return {'keep_undetermined': True, 'use_scratch': False}
 
     def get_samples(self):
         sample_id_map = {}
@@ -269,7 +270,7 @@ class Bcl2FastQRunner(ModularRunner):
         return {'fastq': samples_to_return}
 
     def get_dependencies(self, sample):
-        return self.bcl2fastq_task
+        return self.tasks
 
     def _remove_undetermined(self, workflowRunner, dependencies, input_dir): 
         if not self.params.self.optional.keep_undetermined: 
@@ -289,14 +290,35 @@ class Bcl2FastQRunner(ModularRunner):
                 args+=" --no-lane-splitting"
         else:
             args = '--no-lane-splitting'
+        self.tasks = []
 
         if not os.path.exists(self.params.self.output_dir): 
             os.makedirs(self.params.self.output_dir)
-            
-        bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, self.params.self.output_dir, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
-        bcl_label = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
 
-        self.bcl2fastq_task = self._remove_undetermined(workflowRunner, bcl_label, self.params.self.output_dir)
+        if self.params.self.optional.use_scratch: 
+            temp_folder =os.path.join(self.params.scratch_path, self.identifier + '_' + str(uuid.uuid4()))
+            os.makedirs(temp_folder)
+                        
+            bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, temp_folder, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
+            bcl_label = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
+            
+            remove_label = self._remove_undetermined(workflowRunner, bcl_label, temp_folder)
+
+            copy_cmd = "cp -r {scratch}/* {output_dir}".format(
+                    scratch=temp_folder,
+                    output_dir=self.params.self.output_dir)
+            copy_label = workflowRunner.addTask("copy_{}".format(self.identifier), copy_cmd, dependencies=remove_label)
+            self.tasks.append(copy_label)
+            
+            remove_scratch_cmd = "rm -rf {scratch}".format(
+                    scratch=temp_folder)
+            workflowRunner.addTask("remove_scratch_{}".format(self.identifier), remove_scratch_cmd, dependencies=copy_label) #doesn't stop any downstream analysis.
+        else: 
+            bcl2fastq_wf = Bcl2Fastq(self.params.bcl2fastq_path, self.params.sample_path, self.params.self.output_dir, self.params.sample_sheet, args=args, max_job_cores=self.get_core_count(16))
+            bcl_label = workflowRunner.addWorkflowTask(self.identifier, bcl2fastq_wf, dependencies=dependencies)
+
+            remove_label = self._remove_undetermined(workflowRunner, bcl_label, self.params.self.output_dir)
+            self.tasks.append(remove_label)
             
         
 class RSEMRunner(ModularRunner):
