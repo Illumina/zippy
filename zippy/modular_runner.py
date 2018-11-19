@@ -747,7 +747,8 @@ class StarRunner(ModularRunner):
     '''
     def get_output(self, sample):
         return {'bam': os.path.join(self.params.self.output_dir,'{}.raw.bam'.format(sample.name)),
-        'starlog': os.path.join(self.params.self.output_dir,'{}Log.final.out'.format(sample.name))}
+        'starlog': os.path.join(self.params.self.output_dir,'{}Log.final.out'.format(sample.name)), 
+        'sjout': os.path.join(self.params.self.output_dir, '{}SJ.out.tab'.format(sample.name))}
 
     def define_optionals(self):
         return {'args': ''}
