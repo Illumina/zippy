@@ -1175,7 +1175,16 @@ class CopyFolderRunner(ModularRunner):
         output_dir: the output folder path
     '''
     def get_output(self, sample):
-        return {'folder': os.path.join(self.params.self.output_dir)}
+        abs_path_from = os.path.abspath(self.params.self.input_dir)
+        abs_path_to = os.path.abspath(self.params.self.output_dir)
+        output_map = {'folder': os.path.join(self.params.self.output_dir)}
+        for previous_stage in self.previous_stages:
+            stage_results = previous_stage.get_output(sample)
+            for (k,v) in stage_results.iteritems():
+                abs_path_value = os.path.abspath(v)
+                new_abs_path_value = string.replace(abs_path_value, abs_path_from, abs_path_to)
+                output_map[k] = new_abs_path_value
+        return output_map
 
     def get_samples(self):
         samples_in = self.collect_samples()
