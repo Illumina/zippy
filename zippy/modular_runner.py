@@ -710,7 +710,7 @@ class StarRunner(ModularRunner):
         'starlog': os.path.join(self.params.self.output_dir,'{}Log.final.out'.format(sample.name))}
 
     def define_optionals(self):
-        return {'args': ''}
+        return {'args': '--outSAMtype BAM SortedByCoordinate'}
 
     def workflow(self, workflowRunner):
         self.task = defaultdict(list)        

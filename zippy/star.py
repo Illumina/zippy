@@ -131,12 +131,14 @@ class SingleStarFlow(WorkflowRunner):
                 read_files_string = ','.join(fastq_by_sample_1)+" "+','.join(fastq_by_sample_2)
         else:
                 read_files_string = ','.join(fastq_by_sample_1)
-        self.star_command = "{star_path} --genomeDir {star_index}  --readFilesIn {read_files_string} --runThreadN {max_job_cores}  --outFileNamePrefix {out_dir}  --outTmpDir {tmp_dir} --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outSAMunmapped Within".format(
+        self.star_command = "{star_path} --genomeDir {star_index}  --readFilesIn {read_files_string} --runThreadN {max_job_cores}  --outFileNamePrefix {out_dir}  --outTmpDir {tmp_dir} --readFilesCommand zcat --outSAMunmapped Within".format(
             star_path=self.star_path, star_index=self.star_index, 
             read_files_string=read_files_string, max_job_cores=self.max_job_cores,
             out_dir=pre_out_prefix, tmp_dir = self.tmp_path)
         if self.command_args != "":
             self.star_command+=" "+self.command_args
+        if not '--outSAMtype' in self.star_command.split(' '): 
+            self.flowLog("Missing --outSAMtype param. Output will default to SAM type.", 2)
         self.flowLog(self.star_command)
         star_task = self.addTask("star", self.star_command, nCores=self.max_job_cores, memMb=100*1024, dependencies=None)
         #self.addTask("delete_tmp",  "rm -r {tmp_dir}".format(tmp_dir=os.path.join(self.out_dir, 'tmp'+self.sample)), dependencies=star_task)
