@@ -1013,6 +1013,9 @@ class BloomSubsampleBAMRunner(ModularRunner):
     def get_output(self, sample):
         return {'bam': os.path.join(self.params.self.output_dir, sample.name+".sub.bam")}
 
+    def define_optionals(self): 
+        return {'args': None}
+    
     def workflow(self, workflowRunner):
         """
         TODO: might the aligner return more than 1 BAM?
@@ -1028,6 +1031,10 @@ class BloomSubsampleBAMRunner(ModularRunner):
             script_path = os.path.join(zippy_dir, 'downsampling_bloom.py')
             subsample_command = '{python} {script_path} --bam {bam} --downsampled_pairs {count} --output {output_path} --threads {threads}'.format(
                 python=self.params.python, script_path=script_path, bam=bam_file, count=self.params.self.reads, output_path=new_bam_file, threads=cores)
+            
+            if self.params.self.optional.args: 
+                subsample_command += ' ' + self.params.self.optional.args
+            
             mem = self.get_memory_count(1024 * 32)
             sub_task = workflowRunner.addTask('{}_{}'.format(self.identifier, sample.id),
                             subsample_command, dependencies=dependencies, nCores=cores, memMb=mem)
