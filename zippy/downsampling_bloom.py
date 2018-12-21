@@ -139,7 +139,7 @@ class readnameConsumer(multiprocessing.Process):
         # Finished getting all the reads, now write the output bam
         with pysam.AlignmentFile(self.bamIn, 'rb') as bamSource:
             with pysam.AlignmentFile(self.bamOut, 'wb', template=bamSource) as bamOutput:
-                for read in bamSource.fetch():
+                for read in bamSource:
                     if read.query_name in masterBF:
                         bamOutput.write(read)
         print("Finished downsampling %s to %s. Outputted (selected/desired) %i/%i readnames." % (self.bamIn, self.bamOut, counter, self.readnameCount))
@@ -150,7 +150,7 @@ def getTotalReads(bam, unmapped):
     stats = pysam.idxstats(bam)
     for line in stats.split('\n'):
         tokenized = line.split()
-        if len(tokenized) == 0: continue
+        if len(tokenized) == 0 : continue
         if not unmapped and tokenized[0] == "*": continue
         c = int(tokenized[2]) + int(tokenized[3]) # mapped + unmapped reads
         perChromCount[tokenized[0]] = c
