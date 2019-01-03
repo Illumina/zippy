@@ -144,15 +144,15 @@ class SingleStarFlow(WorkflowRunner):
         #self.addTask("delete_tmp",  "rm -r {tmp_dir}".format(tmp_dir=os.path.join(self.out_dir, 'tmp'+self.sample)), dependencies=star_task)
         
         output_bam_file = pre_out_prefix + 'Aligned.sortedByCoord.out.bam'
-        skip_index = False
+        make_index = False
         
         if re.search('--outSAMtype\s+.?BAM.?\s+.?Unsorted.?', self.star_command):
             output_bam_file = pre_out_prefix + 'Aligned.out.bam'
-            skip_index = True
+            make_index = True
             
         rename_task = self.addTask("rename_star"+str(self.sample),  "mv {output_bam_file} {path}/{sample}.raw.bam".format(output_bam_file=output_bam_file, path=self.out_dir, sample=self.sample), dependencies=star_task)
         # build bai
-        if skip_index: 
+        if make_index: 
             self.addTask("bai", "samtools index {path}/{sample}.raw.bam".format(path=self.out_dir, sample=self.sample), dependencies=rename_task)
 
 
