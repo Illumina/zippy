@@ -142,7 +142,13 @@ class SingleStarFlow(WorkflowRunner):
         self.flowLog(self.star_command)
         star_task = self.addTask("star", self.star_command, nCores=self.max_job_cores, memMb=100*1024, dependencies=None)
         #self.addTask("delete_tmp",  "rm -r {tmp_dir}".format(tmp_dir=os.path.join(self.out_dir, 'tmp'+self.sample)), dependencies=star_task)
-        rename_task = self.addTask("rename_star"+str(self.sample),  "mv {prefix}Aligned.sortedByCoord.out.bam {path}/{sample}.raw.bam".format(prefix=pre_out_prefix, path=self.out_dir, sample=self.sample), dependencies=star_task)
+        
+        output_bam_file = pre_out_prefix + 'Aligned.sortedByCoord.out.bam'
+        
+        if re.search('--outSAMtype\s+.?BAM.?\s+.?Unsorted.?', self.star_command):
+            output_bam_file = pre_out_prefix + 'Aligned.out.bam'
+            
+        rename_task = self.addTask("rename_star"+str(self.sample),  "mv {output_bam_file} {path}/{sample}.raw.bam".format(output_bam_file=output_bam_file, path=self.out_dir, sample=self.sample), dependencies=star_task)
         # build bai
         self.addTask("bai", "samtools index {path}/{sample}.raw.bam".format(path=self.out_dir, sample=self.sample), dependencies=rename_task)
 
