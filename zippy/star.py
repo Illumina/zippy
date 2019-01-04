@@ -131,18 +131,29 @@ class SingleStarFlow(WorkflowRunner):
                 read_files_string = ','.join(fastq_by_sample_1)+" "+','.join(fastq_by_sample_2)
         else:
                 read_files_string = ','.join(fastq_by_sample_1)
-        self.star_command = "{star_path} --genomeDir {star_index}  --readFilesIn {read_files_string} --runThreadN {max_job_cores}  --outFileNamePrefix {out_dir}  --outTmpDir {tmp_dir} --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outSAMunmapped Within".format(
+        self.star_command = "{star_path} --genomeDir {star_index}  --readFilesIn {read_files_string} --runThreadN {max_job_cores}  --outFileNamePrefix {out_dir}  --outTmpDir {tmp_dir} --readFilesCommand zcat --outSAMunmapped Within".format(
             star_path=self.star_path, star_index=self.star_index, 
             read_files_string=read_files_string, max_job_cores=self.max_job_cores,
             out_dir=pre_out_prefix, tmp_dir = self.tmp_path)
         if self.command_args != "":
             self.star_command+=" "+self.command_args
+        if not '--outSAMtype' in self.star_command.split(' '): 
+            self.flowLog("Missing --outSAMtype param. Output will default to SAM type.", 2)
         self.flowLog(self.star_command)
         star_task = self.addTask("star", self.star_command, nCores=self.max_job_cores, memMb=100*1024, dependencies=None)
         #self.addTask("delete_tmp",  "rm -r {tmp_dir}".format(tmp_dir=os.path.join(self.out_dir, 'tmp'+self.sample)), dependencies=star_task)
-        rename_task = self.addTask("rename_star"+str(self.sample),  "mv {prefix}Aligned.sortedByCoord.out.bam {path}/{sample}.raw.bam".format(prefix=pre_out_prefix, path=self.out_dir, sample=self.sample), dependencies=star_task)
+        
+        output_bam_file = pre_out_prefix + 'Aligned.sortedByCoord.out.bam'
+        make_index = True
+        
+        if re.search('--outSAMtype\s+.?BAM.?\s+.?Unsorted.?', self.star_command):
+            output_bam_file = pre_out_prefix + 'Aligned.out.bam'
+            make_index = False
+            
+        rename_task = self.addTask("rename_star"+str(self.sample),  "mv {output_bam_file} {path}/{sample}.raw.bam".format(output_bam_file=output_bam_file, path=self.out_dir, sample=self.sample), dependencies=star_task)
         # build bai
-        self.addTask("bai", "samtools index {path}/{sample}.raw.bam".format(path=self.out_dir, sample=self.sample), dependencies=rename_task)
+        if make_index: 
+            self.addTask("bai", "samtools index {path}/{sample}.raw.bam".format(path=self.out_dir, sample=self.sample), dependencies=rename_task)
 
 
     
