@@ -2,8 +2,8 @@
 """
 Downsampling script for paired end data that retains information about non-linear alignments.
 If the specified value for downsampling is less than the number of reads in the original bam, 
-then it will simply copy the old bam to the new path while omitting any pairs that have no
-alignment whatsoever. This makes it so that regardless if downsampling was actually performed,
+then it will simply copy the old bam to the new path. If unmapped pairs are not included, 
+undownsampled bams will be copied over without unmapped reads so that regardless if downsampling was actually performed,
 the output is in the same "style" (i.e. includes no pairs that are complete unmapped).
 
 Author: Kevin Wu, Jan. 2017
@@ -82,8 +82,12 @@ class sampleReadNamesProcess(multiprocessing.Process):
             # Initialize values for this chromosome's sampling
             targetReadnamesCount = self.perChromReadnamesTarget[chromosome]
             numSingleEndReads = self.perChromSingleEndReads[chromosome]
-            acceptedProbability = float(targetReadnamesCount) / float(numSingleEndReads)
-            acceptedReadnames = pybloomfilter.BloomFilter(targetReadnamesCount * 2, BF_PROB)
+            if numSingleEndReads > 0: 
+                acceptedProbability = float(targetReadnamesCount) / float(numSingleEndReads)
+                acceptedReadnames = pybloomfilter.BloomFilter(targetReadnamesCount * 2, BF_PROB)
+            else:
+                print("No reads in current chromosome %s, skipping" % chromosome)
+                continue
 
             numIters = 0
             keepGoing = True
@@ -135,25 +139,26 @@ class readnameConsumer(multiprocessing.Process):
         # Finished getting all the reads, now write the output bam
         with pysam.AlignmentFile(self.bamIn, 'rb') as bamSource:
             with pysam.AlignmentFile(self.bamOut, 'wb', template=bamSource) as bamOutput:
-                for read in bamSource.fetch():
+                for read in bamSource:
                     if read.query_name in masterBF:
                         bamOutput.write(read)
         print("Finished downsampling %s to %s. Outputted (selected/desired) %i/%i readnames." % (self.bamIn, self.bamOut, counter, self.readnameCount))
 
-def getTotalReads(bam):
+def getTotalReads(bam, unmapped):
     totalReads = 0
     perChromCount = {}
     stats = pysam.idxstats(bam)
     for line in stats.split('\n'):
         tokenized = line.split()
-        if len(tokenized) == 0 or tokenized[0] == "*": continue
+        if len(tokenized) == 0 : continue
+        if not unmapped and tokenized[0] == "*": continue
         c = int(tokenized[2]) + int(tokenized[3]) # mapped + unmapped reads
         perChromCount[tokenized[0]] = c
         totalReads += c
     return totalReads, perChromCount
 
 
-def downsample(inputBam, outputBam, targetNumUniqueReadnames, numThreads=4):
+def downsample(inputBam, outputBam, targetNumUniqueReadnames, unmapped, numThreads=4):
     # Sanity checks
     if not os.path.isfile(inputBam):
         raise RuntimeError("Cannot find %s" % inputBam)
@@ -161,12 +166,12 @@ def downsample(inputBam, outputBam, targetNumUniqueReadnames, numThreads=4):
     if not os.path.isfile(indexFile):
         raise RuntimeError("Input bam %s must be sorted" % inputBam)
     
-    totalSingleEndReads, perChromSingleEndReads = getTotalReads(inputBam)
+    totalSingleEndReads, perChromSingleEndReads = getTotalReads(inputBam, unmapped)
     assert totalSingleEndReads != -1
 
     # Skip downsampling if we already have fewer than downsampled amount
     if targetNumUniqueReadnames * 2 >= totalSingleEndReads:
-        print("%s does not need downsampling. Copying old bam to new path while omitting completely unaligned pairs" % inputBam)
+        print("%s does not need downsampling. Copying old bam to new path." % inputBam)
         # Copy the file over
         needs_downsampling = False
     else:
@@ -177,6 +182,8 @@ def downsample(inputBam, outputBam, targetNumUniqueReadnames, numThreads=4):
     with pysam.AlignmentFile(inputBam, 'rb') as bIn:
         chromosomes = bIn.references
 
+    if unmapped: chromosomes += ('*',)
+    
     # Split the chromosomes into per-thread lists of chromosomes
     chromosomeChunks = partition(chromosomes, numThreads)
     readnamesQueue = multiprocessing.Queue()
@@ -223,6 +230,7 @@ def buildParser():
                         help="Path to output bam file")
     parser.add_argument("--threads", type=int, default=4,
                         help="Number of threads to use")
+    parser.add_argument("--unmapped", action='store_true', help="If set, include unmapped reads")
     return parser
 
 
@@ -231,4 +239,4 @@ if __name__ == "__main__":
     parser = buildParser()
     args = parser.parse_args()
 
-    downsample(args.bam, args.output, args.downsampled_pairs, args.threads)
+    downsample(args.bam, args.output, args.downsampled_pairs,  args.unmapped, args.threads)
