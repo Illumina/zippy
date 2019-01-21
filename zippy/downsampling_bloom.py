@@ -144,19 +144,16 @@ class readnameConsumer(multiprocessing.Process):
                         bamOutput.write(read)
         print("Finished downsampling %s to %s. Outputted (selected/desired) %i/%i readnames." % (self.bamIn, self.bamOut, counter, self.readnameCount))
 
-def getTotalReads(bam, unmapped):
+
+def getTotalReads(bam, chromosomes): 
     totalReads = 0
     perChromCount = {}
-    stats = pysam.idxstats(bam)
-    for line in stats.split('\n'):
-        tokenized = line.split()
-        if len(tokenized) == 0 : continue
-        if not unmapped and tokenized[0] == "*": continue
-        c = int(tokenized[2]) + int(tokenized[3]) # mapped + unmapped reads
-        perChromCount[tokenized[0]] = c
+    for chromosome in chromosomes: 
+        c = int(pysam.view('-F', '2304', '-c', bam, chromosome))
+        perChromCount[chromosome] = c
         totalReads += c
     return totalReads, perChromCount
-
+    
 
 def downsample(inputBam, outputBam, targetNumUniqueReadnames, unmapped, numThreads=4):
     # Sanity checks
@@ -166,7 +163,13 @@ def downsample(inputBam, outputBam, targetNumUniqueReadnames, unmapped, numThrea
     if not os.path.isfile(indexFile):
         raise RuntimeError("Input bam %s must be sorted" % inputBam)
     
-    totalSingleEndReads, perChromSingleEndReads = getTotalReads(inputBam, unmapped)
+    # Get the chromosomes included in this bam
+    with pysam.AlignmentFile(inputBam, 'rb') as bIn:
+        chromosomes = bIn.references
+
+    if unmapped: chromosomes += ('*',)
+
+    totalSingleEndReads, perChromSingleEndReads = getTotalReads(inputBam, chromosomes)
     assert totalSingleEndReads != -1
 
     # Skip downsampling if we already have fewer than downsampled amount
@@ -178,11 +181,6 @@ def downsample(inputBam, outputBam, targetNumUniqueReadnames, unmapped, numThrea
         print("Starting downsampling for %s" % inputBam)
         needs_downsampling = True
 
-    # Get the chromosomes included in this bam
-    with pysam.AlignmentFile(inputBam, 'rb') as bIn:
-        chromosomes = bIn.references
-
-    if unmapped: chromosomes += ('*',)
     
     # Split the chromosomes into per-thread lists of chromosomes
     chromosomeChunks = partition(chromosomes, numThreads)
