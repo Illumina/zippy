@@ -149,6 +149,7 @@ def getTotalReads(bam, chromosomes):
     totalReads = 0
     perChromCount = {}
     for chromosome in chromosomes: 
+        #filter supplementary and secondary alignments
         c = int(pysam.view('-F', '2304', '-c', bam, chromosome))
         perChromCount[chromosome] = c
         totalReads += c
