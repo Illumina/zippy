@@ -173,7 +173,14 @@ class ModularMain(WorkflowRunner):
                 previous_stage = self.run_stage(stage, [previous_stage])
 
     def run_zippy(self, mode='sge', mail_to=None, sge_arg_list=None, pyflow_dir=None):
-        """Runs the workflow. Returns 0 upon successful completion, 1 otherwise"""
+        """
+        Runs the workflow. Returns 0 upon successful completion, 1 otherwise. 
+        Args: 
+          mail_to = e-mail address error information will be sent to
+          sge_arg_list = any SGE parameters to override pyflow's default qsub arguments. 
+          pyflow_dir = overrides the default pyflow directory location (which is the scratch_path parameter in  by default)
+        """
+        
         # pyflow.WorkflowRunner's run function by default already returns 0/1 for success/fail
         if not pyflow_dir: 
             pyflow_dir = self.params.scratch_path
