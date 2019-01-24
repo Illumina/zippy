@@ -178,7 +178,7 @@ class ModularMain(WorkflowRunner):
         Args: 
           mail_to = e-mail address error information will be sent to
           sge_arg_list = any SGE parameters to override pyflow's default qsub arguments. 
-          pyflow_dir = overrides the default pyflow directory location (which is the scratch_path parameter in  by default)
+          pyflow_dir = overrides the default pyflow directory location (which is the scratch_path parameter by default)
         """
         
         # pyflow.WorkflowRunner's run function by default already returns 0/1 for success/fail
