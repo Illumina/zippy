@@ -172,15 +172,25 @@ class ModularMain(WorkflowRunner):
             else:
                 previous_stage = self.run_stage(stage, [previous_stage])
 
-    def run_zippy(self, mode='sge', mail_to=None, sge_arg_list=None):
-        """Runs the workflow. Returns 0 upon successful completion, 1 otherwise"""
+    def run_zippy(self, mode='sge', mail_to=None, sge_arg_list=None, pyflow_dir=None):
+        """
+        Runs the workflow. Returns 0 upon successful completion, 1 otherwise. 
+        Args: 
+          mail_to = e-mail address error information will be sent to
+          sge_arg_list = any SGE parameters to override pyflow's default qsub arguments. 
+          pyflow_dir = overrides the default pyflow directory location (which is the scratch_path parameter by default)
+        """
+        
         # pyflow.WorkflowRunner's run function by default already returns 0/1 for success/fail
+        if not pyflow_dir: 
+            pyflow_dir = self.params.scratch_path
+            
         if mode == 'local':
             if not hasattr(self.params, 'max_cores') or not hasattr(self.params, 'max_memory'):
                 raise IOError('In local mode, must specify max_cores and max_memory for the entire system.')
-            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, nCores=self.params.max_cores, memMb=self.params.max_memory)
+            retval = self.run(mode=mode, dataDirRoot=pyflow_dir, retryMax=0, mailTo=mail_to, nCores=self.params.max_cores, memMb=self.params.max_memory)
         else:
-            retval = self.run(mode=mode, dataDirRoot=self.params.scratch_path, retryMax=0, mailTo=mail_to, schedulerArgList=sge_arg_list)
+            retval = self.run(mode=mode, dataDirRoot=pyflow_dir, retryMax=0, mailTo=mail_to, schedulerArgList=sge_arg_list)
         return retval
 
 
