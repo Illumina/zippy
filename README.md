@@ -33,6 +33,8 @@ If you would like to run ZIPPY from source, there are a couple of things to note
 - Run the tests file make_params_test.py and see if it's OK!
 
 # Using ZIPPY:
+-1.  Install pyflow by using 'pip install https://github.com/Illumina/pyflow/releases/download/v1.1.17/pyflow-1.1.17.tar.gz'.  Unfortunately, pyflow is currently not in pypi, and so must be manually installed.
+
 0. Install ZIPPY by using 'pip install --process-dependency-links zippy-pipeline'
 
 1. Make a proto-workflow file.
