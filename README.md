@@ -60,6 +60,9 @@ Yeah, that's really it.
 
 **More information is on the git wiki.**
 
+v2.1.3 (01/28/2019)
+- Improvements to RNA support (jsnedecor)
+
 v2.1.2 (11/13/2018)
 - Improvements to the bwa module (kwu)
 - Added stage for copying a folder
