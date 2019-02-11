@@ -105,8 +105,9 @@ class SingleStarFlow(WorkflowRunner):
     Pyflow workflow to call the STAR aligner.  We follow file formatting guidelines from the isaac workflow
     from bioxutils.
     """
-    def __init__(self, star_path, star_index, sample, fastqs, out_dir, max_job_cores=8, tmp_path='', command_args=''):
+    def __init__(self, star_path, samtools_path, star_index, sample, fastqs, out_dir, max_job_cores=8, tmp_path='', command_args=''):
         self.star_path = star_path
+        self.samtools_path = samtools_path
         self.star_index = star_index
         self.sample = sample
         self.fastqs = fastqs
