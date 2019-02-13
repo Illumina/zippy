@@ -154,7 +154,7 @@ class SingleStarFlow(WorkflowRunner):
         rename_task = self.addTask("rename_star"+str(self.sample),  "mv {output_bam_file} {path}/{sample}.raw.bam".format(output_bam_file=output_bam_file, path=self.out_dir, sample=self.sample), dependencies=star_task)
         # build bai
         if make_index: 
-            self.addTask("bai", "samtools index {path}/{sample}.raw.bam".format(path=self.out_dir, sample=self.sample), dependencies=rename_task)
+            self.addTask("bai", "{samtools} index {path}/{sample}.raw.bam".format(samtools=self.samtools_path, path=self.out_dir, sample=self.sample), dependencies=rename_task)
 
 
     
