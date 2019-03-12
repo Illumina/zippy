@@ -225,7 +225,7 @@ class Bcl2FastQRunner(ModularRunner):
         sample_id_map = {}
         samples = []
         for line in self.sample_sheet.get("Data"):
-            if line.get("Sample_ID") == '' and line.get("Sample_Name") == '':
+            if line.get("Sample_ID") == '' and line.get("Sample_Name", fallback='') == '':
                 continue
             sample  = line.get("Sample_ID") 
             if sample not in sample_id_map:
@@ -243,11 +243,11 @@ class Bcl2FastQRunner(ModularRunner):
         sample_first_instance = {}
         samples_to_return = []
         for line in self.sample_sheet.get("Data"):
-            if line.get("Sample_ID") == '' and line.get("Sample_Name") == '':
+            if line.get("Sample_ID") == '' and line.get("Sample_Name", fallback='') == '':
                 continue
             if sample.id ==  line.get("Sample_ID"):
                 if not sample in sample_first_instance:
-                    sample_first_instance[sample] = line.data_i
+                    sample_first_instance[sample] = line.get("row_idx")
                 else: #if no_lane_splitting=True this is needed
                     continue
                 #if line.has("Lane"): #this is not necessary when no_lane_splitting=True
@@ -260,9 +260,7 @@ class Bcl2FastQRunner(ModularRunner):
                     path=self.params.self.output_dir, sample_name=line.get("Sample_Name"), sample_index=sample_first_instance[sample]))
                 samples_to_return.append("{path}/{sample_name}_S{sample_index}_R2_001.fastq.gz".format(
                     path=self.params.self.output_dir, sample_name=line.get("Sample_Name"), sample_index=sample_first_instance[sample]))
-        print 'z'
         print samples_to_return
-        print 'z'
         return {'fastq': samples_to_return}
 
     def get_dependencies(self, sample):
@@ -590,7 +588,7 @@ class DataRunner(ModularRunner):
             sample_id_map = {}
             samples = []
             for line in sample_sheet.get("Data"):
-                if line.get("Sample_ID") == '' and line.get("Sample_Name") == '':
+                if line.get("Sample_ID") == '' and line.get("Sample_Name", fallback='') == '':
                     continue
                 sample  = line.get("Sample_ID") 
                 if sample not in sample_id_map:

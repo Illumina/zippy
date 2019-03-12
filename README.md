@@ -61,6 +61,8 @@ Yeah, that's really it.
 
 
 **More information is on the git wiki.**
+v2.2.0 (??)
+- Rewrite of the samplesheet code.  The public interface is the same, but the underlying representation has changed.  The new approach supports sample sheets that do not have a sample name column.
 
 v2.1.3 (01/28/2019)
 - Improvements to RNA support (jsnedecor)

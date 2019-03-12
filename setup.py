@@ -23,7 +23,7 @@ setup(
     name='zippy-pipeline',
     long_description=long_desc,
     url='https://github.com/Illumina/zippy',
-    download_url='https://github.com/Illumina/zippy/archive/2.1.3.tar.gz',
+    download_url='https://github.com/Illumina/zippy/archive/2.2.0.tar.gz',
     author='Aaron Wise',
     author_email='quejebo@gmail.com',
     license='Apache 2.0',
