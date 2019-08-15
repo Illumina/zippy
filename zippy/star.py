@@ -70,8 +70,8 @@ class starFlow(WorkflowRunner):
         sample_id_TO_sample_name = {}
         fastq_by_sample_1 = defaultdict(list)
         fastq_by_sample_2 = defaultdict(list)        
-        for (lane, sample_data) in fastq_files.iteritems():
-            for (sample, reads) in sample_data.iteritems():
+        for (lane, sample_data) in fastq_files.items():
+            for (sample, reads) in sample_data.items():
                     self.flowLog(reads.keys())
                     fastq_by_sample_1[sample].append(reads['R1'])
                     try:

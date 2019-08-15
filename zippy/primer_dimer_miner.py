@@ -48,7 +48,7 @@ class PrimerDimerMiner():
         Also does reverse complements.
         """
         kmer_map = defaultdict(set)
-        for (probe, seq) in probe_map.iteritems():
+        for (probe, seq) in probe_map.items():
             seq_rc = self.reverse_complement(seq)
             for i in range(0, len(seq)-k):
                 kmer_map[seq[i:i+k]].add(probe)

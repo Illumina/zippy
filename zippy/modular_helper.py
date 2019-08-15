@@ -1,4 +1,3 @@
-from __future__ import print_function
 from .modular_runner import *
 from .make_params import case_insensitive_list_match, ParamFinder, walk_all_methods
 

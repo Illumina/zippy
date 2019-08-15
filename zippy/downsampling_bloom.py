@@ -26,7 +26,7 @@ MAX_ITERS = 10 # Maximum times we'll loop through a bam
 def partition(lst, n):
     """Given a list, partition it into n chunks of approximately equal size"""
     # https://stackoverflow.com/questions/2659900/python-slicing-a-list-into-n-nearly-equal-length-partitions
-    return [lst[i::n] for i in xrange(n)]
+    return [lst[i::n] for i in range(n)]
 
 
 class allReadNamesProcess(multiprocessing.Process):

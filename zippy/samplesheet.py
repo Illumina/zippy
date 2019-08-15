@@ -48,10 +48,10 @@ class SampleSheet(object):
                 name_to_ids[name].add(sample_id)
                 ids_to_names[sample_id].add(name)
                 check_valid_samplename(name)
-        for (identifier, name_set) in ids_to_names.iteritems():
+        for (identifier, name_set) in ids_to_names.items():
             if len(name_set) > 1:
                 raise IOError('Sample ID {} has multiple sample names.  Sample name and sample ID must be unique'.format(identifier))        
-        for (name, id_set) in name_to_ids.iteritems():
+        for (name, id_set) in name_to_ids.items():
             if len(id_set) > 1:
                 if self.fix_dup_sample_names:
                     for sample_id in id_set:
@@ -97,7 +97,7 @@ class SampleSheet(object):
         section_name = None
         _data_header = None
         _data_i = 1
-        with open(sample_sheet, 'rb') as f:
+        with open(sample_sheet, 'r') as f:
             for i, line in enumerate(f):
                 line = line.rstrip('\n\r').split(',')
                 self._l.append(line)

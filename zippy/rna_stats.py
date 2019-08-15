@@ -39,7 +39,7 @@ def parse_starlog(fname):
 def parse_insert_size(fname):
     data = []
     results = []
-    with open(fname, 'rb') as f:
+    with open(fname, 'r') as f:
         c = csv.reader(f, delimiter='\t')
         for line in c:
             if 'sameTranscript=No' in line or 'sameChrom=No' in line or 'dist=genomic' in line: #we remove non-traditional transcripts
@@ -70,7 +70,7 @@ def get_ribosome_read_count(params):
     for line in samfile:
         read_names.add(line.query_name)
     samfile.close()
-    print "{temp_path}.bam".format(temp_path=params.temp_path)
+    print("{temp_path}.bam".format(temp_path=params.temp_path))
     #subprocess.call("rm {temp_path}.bam".format(temp_path=params.temp_path), shell=True)
     return len(read_names)
 
@@ -104,7 +104,7 @@ def analyze_rna(params):
         results.append('Ribosomal reads\t{}'.format(ribosome_read_count))
         if number_reads > 0:
             results.append('Ribosomal read percentage\t{:.2%}'.format(float(ribosome_read_count)/float(number_reads))) 
-        print results
+        print(results)
     #if params.intron_bed is not None:
     #    intron_read_count = get_intron_read_count(params)
     #    results.append('Intron-overlapping reads\t{}'.format(intron_read_count))
@@ -117,7 +117,7 @@ def analyze_rna(params):
         results.append('Manifest reads\t{}'.format(manifest_read_count))
         if number_reads > 0:
             results.append('Manifest read percentage\t{:.2%}'.format(float(manifest_read_count)/float(number_reads))) #2*x because the read count is paired end reads, but our ribosomal count is not.
-        print results        
+        print(results)        
     if params.rseqc_inner_distance is not None:
         results.extend(parse_insert_size(params.rseqc_inner_distance))
     if params.dup_stats:
@@ -126,7 +126,7 @@ def analyze_rna(params):
         if unique_reads > 0:
             results.append('Duplicate read percentage (of all uniquely mapped reads)\t{:.2%}'.format(float(dup_count)/float(number_reads))) #2*x because the read count is paired end reads, but our ribosomal count is not.
     with open(params.output_path, 'w') as fout:
-        print results
+        print(results)
         fout.write('\n'.join(results))
 
 if __name__ == '__main__':

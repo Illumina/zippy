@@ -11,9 +11,9 @@ def parse_rsem(f_name):
     Returns a map from gene name to a list with one item, the expected count.
     '''
     rsem_map = {}
-    with open(f_name, 'rb') as f:
+    with open(f_name, 'r') as f:
         c = csv.reader(f, delimiter='\t')
-        c.next()
+        next(c)
         for line in c:
             gene = line[0]
             rsem_map[gene] = [float(line[4])]
@@ -34,7 +34,7 @@ def write_data_grid(data_grid, key_ordering, temp_folder):
     #we write out every gene that has the 
     random_path_suffix = str(random.randint(0,100000))
     data_grid_path = os.path.join(temp_folder, 'datagrid'+random_path_suffix+'.csv')
-    print 'DGP: {}'.format(data_grid_path)
+    print('DGP: {}'.format(data_grid_path))
     with open(data_grid_path, 'wb') as f:
         c = csv.writer(f)
         c.writerow(['Symbol']+key_ordering)
@@ -42,7 +42,7 @@ def write_data_grid(data_grid, key_ordering, temp_folder):
             if len(data_grid[symbol]) == len(key_ordering):
                 c.writerow([symbol]+data_grid[symbol])
             else:
-                print len(data_grid[s])
+                print(len(data_grid[s]))
     return data_grid_path
 
 def run_edger(params):

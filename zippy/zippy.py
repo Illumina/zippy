@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re
 import json
 import copy
@@ -128,7 +127,7 @@ class ModularMain(WorkflowRunner):
         TODO: use __import__ to allow the importation of arbitrary dependencies.
         '''
         print(stage)
-        class_name = case_insensitive_list_match('{}Runner'.format(stage.stage), globals().keys())
+        class_name = case_insensitive_list_match('{}Runner'.format(stage.stage), list(globals().keys()))
         print (class_name, stage, previous_stage)
         try:
             stage_out = globals()[class_name](stage.identifier, self.params, previous_stage)
@@ -165,8 +164,6 @@ class ModularMain(WorkflowRunner):
                     previous_stage = self.run_stage(stage, previous_stages)
                 elif isinstance(stage.previous_stage, str):
                     previous_stage = self.run_stage(stage, [self.stage_dict[stage.previous_stage]])
-                elif isinstance(stage.previous_stage, unicode):
-                    previous_stage = self.run_stage(stage, [self.stage_dict[str(stage.previous_stage)]])
                 else:
                     raise TypeError('Previous stage for {} is neither list or string'.format(stage.identifier))
             else:

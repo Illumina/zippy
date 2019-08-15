@@ -2,7 +2,6 @@
 params.py contains the code to parse a compiled ZIPPY .json file.  It performs several layers of functionality
 compared to a pure json loader, such as setting up special keywords 'self' and 'optional', and filling in wildcards.
 '''
-from __future__ import print_function
 import copy
 import commentjson as json
 import inspect
@@ -17,7 +16,7 @@ class ObjectDict(object):
     '''
     def __init__(self, **kwargs):
         self._self_flag = False
-        for (k,v) in kwargs.iteritems():
+        for (k,v) in kwargs.items():
             setattr(self, k, v)
 
     def _lookup_identifier_doublestack(self):
@@ -41,7 +40,7 @@ class ObjectDict(object):
                 stage_params._update_from_dict(d)
             self._self_flag = False
         else:
-            for (k,v) in d.iteritems():
+            for (k,v) in d.items():
                 if not hasattr(self, k):
                     setattr(self, k, v)
 
@@ -119,20 +118,20 @@ def merge_defaults(defaults, params):
     for (i,stage) in enumerate(copy.copy(params['stages'])):
         if stage['stage'] not in defaults['stages']:
             continue
-        for (k,v) in defaults['stages'][stage['stage']].iteritems():
+        for (k,v) in defaults['stages'][stage['stage']].items():
             if k not in stage:
                 params['stages'][i][k] = v
     return params
 
 def resolve_wildcards(wildcard_map, params):
     new_params_map = {}
-    for (k, v) in params.iteritems():
+    for (k, v) in params.items():
         k = sub_check_wilds(wildcard_map, k)
         if isinstance(v, dict):
             v = resolve_wildcards(wildcard_map, v)
         elif isinstance(v, list):
             v = resolve_wildcards_list(wildcard_map, v)
-        elif isinstance(v, str) or isinstance(v, unicode):
+        elif isinstance(v, str):
             v = sub_check_wilds(wildcard_map, v)
         new_params_map[k] = v
     return new_params_map
@@ -158,12 +157,12 @@ def old_get_params(fname, defaults_fname=None, proto=False):
     to the 'params' entry.
     proto: whether this is a prototype params file or not.  If it is, then we do not unroll stages (because it is flat)
     """
-    with open(fname, 'rb') as f:
+    with open(fname, 'r') as f:
         params = json.load(f)
         if 'wildcards' in params:
             params = resolve_wildcards(params['wildcards'], params)
         if defaults_fname is not None:
-            with open(defaults_fname, 'rb') as def_f:
+            with open(defaults_fname, 'r') as def_f:
                 default_params = json.load(def_f)
                 params = merge_defaults(default_params, params)
         params = _json_object_hook(params, fname, proto=proto)
@@ -184,7 +183,7 @@ def get_params(fname, proto=False):
         4b.  Update global environment
     '''
     subworkflow_index = 0
-    with open(fname, 'rb') as f:
+    with open(fname, 'r') as f:
         d = json.load(f)
     if proto:
         return ObjectDict(**d)
@@ -286,8 +285,8 @@ def rejsonify(params):
     if isinstance(params, ObjectDict):
         to_return = params.__dict__
         #strip out private members
-        to_return = {k:v for (k,v) in to_return.iteritems() if k[0]!='_'}
-        for (k,v) in copy.copy(to_return).iteritems():
+        to_return = {k:v for (k,v) in to_return.items() if k[0]!='_'}
+        for (k,v) in copy.copy(to_return).items():
             to_return[k] = rejsonify(v)
     elif isinstance(params, list):
         for (i,v) in enumerate(copy.copy(params)):

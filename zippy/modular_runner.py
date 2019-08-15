@@ -13,10 +13,10 @@ import numpy
 from .utils import sub_check_wilds
 from pyflow import WorkflowRunner
 
-from star import SingleStarFlow
-from bwa import BWAWorkflow
-from samplesheet import SampleSheet, check_valid_samplename
-from bcl2fastq import Bcl2Fastq
+from .star import SingleStarFlow
+from .bwa import BWAWorkflow
+from .samplesheet import SampleSheet, check_valid_samplename
+from .bcl2fastq import Bcl2Fastq
 
 SampleTuple = namedtuple('SampleTuple', ['id', 'name'])
 zippy_dir = os.path.dirname(__file__)
@@ -50,15 +50,13 @@ def organize_fastqs(fastq_files, is_paired_end=True):
     else:
         return fastq_files
 
-class ModularRunner():
+class ModularRunner(metaclass=ABCMeta):
     '''
     Naming convention: a collect method is called at the front end of a stage to take in data.
     A get method is called at the back end of a stage to give data to the next stage.
     typically, collect methods should never need to be overridden.  Get methods must be changed when
     the stage does something unusual (such as merging or creating samples).
     '''
-    __metaclass__ = ABCMeta
-
     def __init__(self, identifier, params, previous_stages):
         self.identifier = identifier
         self.params = params
@@ -177,8 +175,6 @@ class ModularRunner():
                     results.extend(stage_results)
                 elif isinstance(stage_results, str):
                     results.append(stage_results)
-                elif isinstance(stage_results, unicode):
-                    results.append(str(stage_results))
                 else:
                     raise TypeError('Input for {} received neither a string or list: {}'.format(self.identifier, stage_results))
             except (KeyError,TypeError):
@@ -207,8 +203,6 @@ class ModularRunner():
                 dependencies.extend(new_dependencies)
             elif isinstance(new_dependencies, str):
                 dependencies.append(new_dependencies)
-            elif isinstance(new_dependencies, unicode): #python 2 = derp
-                dependencies.append(str(new_dependencies))
             else:
                 raise TypeError('Dependencies for {} received neither a string or list: {}'.format(self.identifier, new_dependencies))
         return dependencies
@@ -260,7 +254,7 @@ class Bcl2FastQRunner(ModularRunner):
                     path=self.params.self.output_dir, sample_name=line.get("Sample_Name"), sample_index=sample_first_instance[sample]))
                 samples_to_return.append("{path}/{sample_name}_S{sample_index}_R2_001.fastq.gz".format(
                     path=self.params.self.output_dir, sample_name=line.get("Sample_Name"), sample_index=sample_first_instance[sample]))
-        print samples_to_return
+        print(samples_to_return)
         return {'fastq': samples_to_return}
 
     def get_dependencies(self, sample):
@@ -602,7 +596,7 @@ class DataRunner(ModularRunner):
 
     def type_map_match(self, fname):
         type_map = self.params.self.optional.type_map
-        for (raw_type, zippy_type) in type_map.iteritems():
+        for (raw_type, zippy_type) in type_map.items():
             if fname.endswith(raw_type):
                 return zippy_type
         return False

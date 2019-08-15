@@ -54,7 +54,7 @@ class BloomKmerFinder():
         Also does reverse complements.
         """
         kmer_map = defaultdict(set)
-        for (probe, seq) in probe_map.iteritems():
+        for (probe, seq) in probe_map.items():
             seq_rc = self.reverse_complement(seq)
             for i in range(0, len(seq)-k):
                 kmer_map[seq[i:i+k]].add(probe)
@@ -91,10 +91,10 @@ class BloomKmerFinder():
                     self.reads_read += 1
                 counter += 1
                 counter = counter % 4
-        print '{} dimer: {}'.format(input_file, self.dimer_reads_read)
-        print '{} monomer: {}'.format(input_file, self.monomer_reads_read)
-        print '{} none: {}'.format(input_file, debug)
-        print '{} total: {}'.format(input_file, self.reads_read)
+        print('{} dimer: {}'.format(input_file, self.dimer_reads_read))
+        print('{} monomer: {}'.format(input_file, self.monomer_reads_read))
+        print('{} none: {}'.format(input_file, debug))
+        print('{} total: {}'.format(input_file, self.reads_read))
 
     def register_kmers(self, read):
         """
@@ -226,4 +226,4 @@ if __name__ == '__main__':
     bloomy = BloomKmerFinder(params, params.kmer, params.exclude_monomers, params.exclude_dimers)
     start = time.time()
     bloomy.run()
-    print time.time()-start
+    print(time.time()-start)

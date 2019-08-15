@@ -25,7 +25,7 @@ class ParamFinder(ast.NodeVisitor):
         self.params_found = []
 
     def filter_private(self):
-        print self.params_found
+        print(self.params_found)
         self.params_found = [x for x in self.params_found if x.param[-1][0]!='_']
 
     def register_param(self, raw_tuple):
@@ -130,10 +130,10 @@ def walk_all_methods(pf, class_object):
                 try:
                     ast_tree = meta.decompile(getattr(class_object,func).__code__)
                 except AssertionError:
-                    print 'meta failed to decompile function {} in class {}.  Some parameters may be missing from the generated file.'.format(func, class_object.__name__)
+                    print('meta failed to decompile function {} in class {}.  Some parameters may be missing from the generated file.'.format(func, class_object.__name__))
                     continue
                 except NameError:
-                    print 'meta is not installed.  Parameters may be missing from the generated file.'
+                    print('meta is not installed.  Parameters may be missing from the generated file.')
             except TypeError:
                 continue
             pf.visit(ast_tree)
@@ -184,7 +184,7 @@ class JsonBuilderMain():
         try:
             defaults = get_params(self.input_args.defaults, proto=True)
         except IOError:
-            print 'Warning: No defaults file found.'
+            print('Warning: No defaults file found.')
             defaults = None
         output_map = OrderedDict()
         if hasattr(self.params, 'imports'):
@@ -198,11 +198,11 @@ class JsonBuilderMain():
             identifier = get_identifier(stage, identifiers)
             stage_map = {"stage": stage, "identifier": identifier}
             if i > 0:
-                print output_map
+                print(output_map)
                 stage_map['previous_stage'] = output_map["stages"][i-1]["identifier"]
             for param in required_params:
                 param = param.param
-                print param
+                print(param)
                 if param[0] == stage and len(param)>1:
                     if hasattr(defaults, 'stages') and stage in defaults.stages and param[1] in defaults.stages[stage]:
                         stage_map[param[1]] = defaults.stages[stage][param[1]]
@@ -220,7 +220,7 @@ class JsonBuilderMain():
                             stage_map[param[1]] = ''
                     elif self.input_args.default_behavior == 'warn':
                         if not hasattr(defaults, 'stages') or stage not in defaults.stages or param[1] not in defaults.stages[stage]:
-                            print "Warning: parameter {} is not included in stage {} defaults".format(param[1], stage)
+                            print("Warning: parameter {} is not included in stage {} defaults".format(param[1], stage))
             output_map["stages"].append(stage_map)
         #global params
         for param in required_params:
@@ -244,7 +244,7 @@ class JsonBuilderMain():
                     output_map[param] = ''
             elif self.input_args.default_behavior == 'warn':            
                 if not hasattr(defaults, param):
-                    print "Warning: global parameter {} is not included".format(param)
+                    print("Warning: global parameter {} is not included".format(param))
         output_map["scratch_path"] = ''
         with open(self.output_file, 'w') as f:
             json.dump(output_map, f, indent=4)
