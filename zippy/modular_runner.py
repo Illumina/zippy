@@ -42,8 +42,8 @@ def organize_fastqs(fastq_files, is_paired_end=True):
     '''
     Helper function used to separate R1/R2 
     '''
-    r1_files = [x for x in fastq_files if '_R1_' in x]
-    r2_files = [x for x in fastq_files if '_R2_' in x]
+    r1_files = [x for x in fastq_files if '_R1_' in os.path.basename(x)]
+    r2_files = [x for x in fastq_files if '_R2_' in os.path.basename(x)]
     if is_paired_end and len(r1_files)>0 and len(r2_files)>0:
         assert not set(r1_files).intersection(set(r2_files))
         return (r1_files, r2_files)
