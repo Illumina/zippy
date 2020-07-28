@@ -382,10 +382,19 @@ class CommandLineRunner(ModularRunner):
     def get_output(self, sample):
         return {self.params.self.output_format : os.path.join(self.params.self.output_dir, self.create_output_string(sample))}
 
+    def define_optionals(self):
+        return {'merge': False, 'output': ''}
+
+    def get_dependencies(self, sample):
+        if self.params.self.optional.merge:
+            return self.task    
+        else:
+            return super().get_dependencies(sample)
+
     def create_output_string(self, sample):
         sample_dict = {"sample.id": sample.id,
                         "sample.name": sample.name}
-        return sub_check_wilds(sample_dict, self.params.self.output)
+        return os.path.join(self.params.self.output_dir, sub_check_wilds(sample_dict, self.params.self.optional.output))
 
     def create_command_string(self, sample, input_files):
         sample_dict = {"sample.id": sample.id,
@@ -399,13 +408,24 @@ class CommandLineRunner(ModularRunner):
         if not os.path.exists(self.params.self.output_dir):
             os.makedirs(self.params.self.output_dir)
         cores = self.get_core_count(4) 
-        mem = self.get_memory_count(1024 * 32)           
-        for sample in self.collect_samples():
-            dependencies = self.collect_dependencies(sample)
-            input_files = self.collect_input(sample, self.params.self.input_format)
-            custom_command = create_command_string(sample, input_files)
-            self.task[sample].append(workflowRunner.addTask('{}_{}'.format(self.identifier, sample.id),
-             custom_command, dependencies=dependencies, nCores=cores, memMb=mem))
+        mem = self.get_memory_count(1024 * 32) 
+        if self.params.self.optional.merge:
+            dependencies = []
+            input_files = []
+            for sample in self.collect_samples():
+                dependencies.extend(self.collect_dependencies(sample))
+                input_files.append(self.collect_input(sample, self.params.self.input_format))
+            custom_command = create_command_string(SampleTuple('dummy', 'dummy'), input_files)
+            self.task = workflowRunner.addTask('{}'.format(self.identifier),
+                 custom_command, dependencies=dependencies, nCores=cores, memMb=mem)
+        else:
+            self.task = defaultdict(list)
+            for sample in self.collect_samples():
+                dependencies = self.collect_dependencies(sample)
+                input_files = self.collect_input(sample, self.params.self.input_format)
+                custom_command = create_command_string(sample, input_files)
+                self.task[sample].append(workflowRunner.addTask('{}_{}'.format(self.identifier, sample.id),
+                 custom_command, dependencies=dependencies, nCores=cores, memMb=mem))
 
 class SubsampleBAMRunner(ModularRunner):
     '''
@@ -592,7 +612,7 @@ class DataRunner(ModularRunner):
         else:
             for sample_name in self.params.self.samples:
                 check_valid_samplename(sample_name)
-            return [SampleTuple(i,x) for (i,x) in enumerate(self.params.self.samples)]
+            return [SampleTuple(x,x) for x in self.params.self.samples]
 
     def type_map_match(self, fname):
         type_map = self.params.self.optional.type_map
@@ -603,8 +623,8 @@ class DataRunner(ModularRunner):
 
     def get_output(self, sample):
         output_map = {}
-        #print os.path.join(self.params.self.output_dir, '*')
-        #print glob.glob(os.path.join(self.params.self.output_dir, '*'))
+        print(os.path.join(self.params.self.output_dir, '*'))
+        print(glob.glob(os.path.join(self.params.self.output_dir, '*')))
         for fname in glob.glob(os.path.join(self.params.self.output_dir, '*')):
             sample_name = sample.name
             if sample_name in fname:
@@ -621,6 +641,7 @@ class DataRunner(ModularRunner):
                     output_map[file_type].append(fname)
                 else:
                     output_map[file_type] = fname
+        print(output_map)
         return output_map
 
     def get_dependencies(self, sample):
