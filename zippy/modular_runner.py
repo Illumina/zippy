@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 import itertools
 import numpy
 
-from .utils import sub_check_wilds
+from .utils import sub_check_wilds, sub_check_params
 from pyflow import WorkflowRunner
 
 from .star import SingleStarFlow
@@ -394,13 +394,13 @@ class CommandLineRunner(ModularRunner):
     def create_output_string(self, sample):
         sample_dict = {"sample.id": sample.id,
                         "sample.name": sample.name}
-        return os.path.join(self.params.self.output_dir, sub_check_wilds(sample_dict, self.params.self.optional.output))
+        return os.path.join(self.params.self.output_dir, sub_check_params(self.params, sub_check_wilds(sample_dict, self.params.self.optional.output)))
 
     def create_command_string(self, sample, input_files):
         sample_dict = {"sample.id": sample.id,
                         "sample.name": sample.name,
-                        "self.output": create_output_string(sample)}
-        return sub_check_wilds(sample_dict, self.params.self.command)
+                        "self.output": self.create_output_string(sample)}
+        return sub_check_params(self.params, sub_check_wilds(sample_dict, self.params.self.command))
 
 
     def workflow(self, workflowRunner):
@@ -415,7 +415,7 @@ class CommandLineRunner(ModularRunner):
             for sample in self.collect_samples():
                 dependencies.extend(self.collect_dependencies(sample))
                 input_files.append(self.collect_input(sample, self.params.self.input_format))
-            custom_command = create_command_string(SampleTuple('dummy', 'dummy'), input_files)
+            custom_command = self.create_command_string(SampleTuple('dummy', 'dummy'), input_files)
             self.task = workflowRunner.addTask('{}'.format(self.identifier),
                  custom_command, dependencies=dependencies, nCores=cores, memMb=mem)
         else:

@@ -63,7 +63,8 @@ Yeah, that's really it.
 **More information is on the git wiki.**
 
 v3.0.0 (??)
-- Migration to python 3
+- Migration to python 3!
+- Bugfixes, including making CommandLineRunner work, and an error with blank names in the sample sheet
 
 v2.2.0 (??)
 - Rewrite of the samplesheet code.  The public interface is the same, but the underlying representation has changed.  The new approach supports sample sheets that do not have a sample name column.

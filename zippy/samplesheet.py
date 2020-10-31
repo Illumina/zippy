@@ -61,6 +61,9 @@ class SampleSheet(object):
                 else:
                     raise IOError('Sample name {} has multiple sample IDs.  Sample name and sample ID must be unique'.format(name))
             else:
+                if name == '':
+                    self.overwrite_sample_name(sample_id)
+                    name = line.get("Sample_Name")
                 self.unique_sample_name_map[list(id_set)[0]] = name
 
     def sample_id_to_sample_index(self, sample_id):
@@ -192,7 +195,7 @@ class Data(object):
     
     def __init__(self, data_header, data_i, line):
         self.data_map = {'row_idx': data_i}
-        assert len(line) == len(data_header), 'Data row at line {} does not match data header length'.format(sample_sheet_i)
+        assert len(line) == len(data_header), 'The data line at index {} does not match data header length'.format(data_i)
         for (heading, value) in zip(data_header, line):
             self.data_map[heading] = value
         
