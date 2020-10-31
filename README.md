@@ -7,6 +7,8 @@
 
 ZIPPY is a powerful, easy-to-use NGS pipeline prototyping system, with batteries included.  ZIPPY helps you create JSON-based pipeline specifications, which it then uses to execute a series of pipeline stages, with no user-written code required.
 
+## This is the personal updated ZIPPY repo of the original developer at Illumina
+
 ## With ZIPPY, you can:
 - Generate a new pipeline without any coding required
 - Auto-generate parameters files from just a list of stages
