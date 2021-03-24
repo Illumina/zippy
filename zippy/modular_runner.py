@@ -397,9 +397,11 @@ class CommandLineRunner(ModularRunner):
         return os.path.join(self.params.self.output_dir, sub_check_params(self.params, sub_check_wilds(sample_dict, self.params.self.optional.output)))
 
     def create_command_string(self, sample, input_files):
+        # TODO: better handle case where input_files is a list
         sample_dict = {"sample.id": sample.id,
                         "sample.name": sample.name,
-                        "self.output": self.create_output_string(sample)}
+                        "self.output": self.create_output_string(sample),
+                        "input_files": ','.join(input_files)}
         return sub_check_params(self.params, sub_check_wilds(sample_dict, self.params.self.command))
 
 
@@ -415,6 +417,7 @@ class CommandLineRunner(ModularRunner):
             for sample in self.collect_samples():
                 dependencies.extend(self.collect_dependencies(sample))
                 input_files.append(self.collect_input(sample, self.params.self.input_format))
+            input_files = [x for x in input_files if x is not None]
             custom_command = self.create_command_string(SampleTuple('dummy', 'dummy'), input_files)
             self.task = workflowRunner.addTask('{}'.format(self.identifier),
                  custom_command, dependencies=dependencies, nCores=cores, memMb=mem)
@@ -423,7 +426,7 @@ class CommandLineRunner(ModularRunner):
             for sample in self.collect_samples():
                 dependencies = self.collect_dependencies(sample)
                 input_files = self.collect_input(sample, self.params.self.input_format)
-                custom_command = create_command_string(sample, input_files)
+                custom_command = self.create_command_string(sample, input_files)
                 self.task[sample].append(workflowRunner.addTask('{}_{}'.format(self.identifier, sample.id),
                  custom_command, dependencies=dependencies, nCores=cores, memMb=mem))
 
