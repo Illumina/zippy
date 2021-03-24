@@ -195,7 +195,7 @@ class Data(object):
     
     def __init__(self, data_header, data_i, line):
         self.data_map = {'row_idx': data_i}
-        assert len(line) == len(data_header), 'The data line at index {} does not match data header length'.format(data_i)
+        assert len(line) == len(data_header), 'The data line at index {} does not match data header length.  Line contents: {}'.format(data_i, line)
         for (heading, value) in zip(data_header, line):
             self.data_map[heading] = value
         
